@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <!-- IMPORT BOOTSRAP -->
+    <script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <!-- //IMPORT BOOTSRAP// -->
+    <!-- IMPORT AXIOS -->
+    <script src="node_modules/axios/dist/axios.min.js"></script>
+    <script src="node_modules/axios/dist/axios.js"></script>
+     <!-- //IMPORT AXIOS// -->
+
+     <!-- fonts awsomes -->
+     <link rel="stylesheet" href="all.min.css">
+     <!-- //fonts awsomes// -->
+
+    <!-- <script src="api.js"></script> -->
+    
+    <title>SPACE</title>
+    <style>
+      body{
+        background: #f0ecff;
+        
+      }
+      #liveAlertPlaceholder
+      {
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        z-index: 99;
+        width: 25%;
+      }
+      #profile-display
+      {
+        display: none;
+        position: absolute;
+        z-index: 3;
+        right: 350px;
+        top: 28px;
+      }
+      #add-post
+      {
+        background-color: #eee5ff;
+        padding: 20px;
+        border-radius: 100%;
+        box-shadow:  23px 23px 27px #898888,-23px -23px 27px #ffffff;
+        font-size: 20px;
+        position: fixed;
+        z-index: 2;
+        bottom: 40px;
+        right: 90px;
+        display: none;
+      }
+
+    </style>
+</head>
+<body>
+    <!-- S=> CONTAINER = NAV -->
+    <div class="container pt-2">
+      <!-- ALERTS -->
+      <div id="liveAlertPlaceholder" class="show fade"></div>
+      <div class="d-flex justify-content-center">
+        <div class="col-9">
+         <!-- S => NAVBAR -->
+         <!-- <button type="button" class="btn btn-primary" id="liveAlertBtn">Show live alert</button> -->
+         <!-- add post icon -->
+         <i id="add-post" class="fa-solid fa-plus"></i>
+         <!-- add post icon -->
+         <!-- the profile -->
+         <div id="profile-display">
+          <div class="card-header">
+            <img class="rounded-circle border border-2" src="profile.jpg" class="img-fluid" alt="..." style="width: 40px; height: 40px;">
+            <b>Amal</b>
+          </div>
+         </div>
+         <!-- the profile -->
+          <nav class="navbar navbar-expand-lg bg-light shadow-lg p-3 mb-5 bg-body-tertiary rounded p-2">
+          <!-- S => IMAGE BRAND -->
+          <a class="navbar-brand" href="#">
+              <img src="brand.png" alt="SPACE" width="35" height="28">
+          </a>
+          <!-- E => IMAGE BRAND -->
+          <!-- S => START THE NAV BAR -->
+          <div class="container-fluid">
+            <!-- S => TITLE -->
+            <a class="navbar-brand" href="#">SPACE</a>
+            <!-- E => TITLE -->
+            <!-- IDK -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <!-- IDK -->
+            <!-- S => HOME AND PROFILE LEFT -->
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+              <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                  <a class="nav-link active" aria-current="page" href="#">Home</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="#">Profile</a>
+                </li>
+              </ul>
+            </div>
+            <!-- E => HOME AND PROFILE -->
+            <!-- NO-LOGIN -->
+            <div class="d-flex w-100 justify-content-end" id="reg_log_div">
+              <button type="button" id="login-btn" class="btn btn-light mx-2" data-bs-toggle="modal" data-bs-target="#login-modal">Login</button>
+              <button type="button" id="register_btn" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#register-modal">Register</button>
+            </div>
+            <!-- NO-LOGIN -->
+            <!-- LOGIN -->
+            <div class="d-flex w-100 justify-content-end" id="logout-div">
+              <button id="liveAlertBtn-e" onclick="logout()" type="button" class="btn btn-outline-danger mx-2" data-bs-toggle="modal">Logout</button>
+            </div>
+            <!-- LOGIN -->
+          </div>
+          <!-- E => START THE NAV BAR -->
+          </nav>
+         <!-- E => NAVBAR -->
+        </div>
+      </div>
+    </div>
+    <!-- E => CONTAINER = NAV -->
+    <!-- S => MAIN CONTAINER -->
+    <div id="post" class="container" style="height: 1000px;">
+      <div class="d-flex justify-content-center">
+        <div class="col-9">
+          <!-- S => POSTS -->
+          <div class="card shadow-lg p-3 mb-5 bg-body-tertiary rounded">
+            <div class="card-header">
+              <img class="rounded-circle border border-2" src="profile.jpg" class="img-fluid" alt="..." style="width: 40px; height: 40px;">
+              <b>@Amal</b>
+            </div>
+            <div class="card-body">
+              <h5>Hi Good morning</h5>
+              <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Assumenda amet officia minus quam earum tenetur, perspiciatis quia impedit sequi quos eligendi eos iste. Rem, eius! Dicta nihil dignissimos nam cupiditate.</p>
+              <img class="w-100" src="pic.jpg" class="img-fluid" alt="...">
+              <h6 class="mt-1" style="color: rgb(122, 122, 122);">2 min ago</h6>
+              <hr>
+              <div>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen" viewBox="0 0 16 16">
+                  <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001zm-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708l-1.585-1.585z"/>
+                </svg>
+                <span>3 commands</span>
+                <!-- THE TAGS -->
+                <!-- <div id="tags" style="display: inline;"> -->
+                  <!-- <div id="tags">
+
+                  </div> -->
+                <!-- </div> -->
+                <!-- THE TAGS -->
+              </div>
+            </div>
+          </div>
+          <!-- E => POST -->
+          
+        </div>
+      </div>
+    </div>
+    <!-- E => MAIN CONTAINER -->
+
+    <!-- S => MODALS to LOGIN-->
+  <div class="modal fade" id="login-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">Login</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+        <form>
+          <div class="mb-3">
+            <label for="username-name" class="col-form-label">Username:</label>
+            <input type="text" class="form-control" id="username-name">
+          </div>
+          <div class="mb-3">
+            <label for="password-name" class="col-form-label">Password:</label>
+            <input type="password" class="form-control" id="password-name">
+          </div>
+        </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button id="liveAlertBtn-s" type="button" class="btn btn-primary" onclick="login()">Login</button>
+        </div>
+      </div>
+    </div>
+  </div>
+    <!-- E => MODALS to LOGIN-->
+    <!-- S => MODALS to REGISTER -->
+    <div class="modal fade" id="register-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="exampleModalLabel">Register</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body"> 
+          <form>
+            <div class="mb-3">
+              <label for="namer-name" class="col-form-label">Name:</label>
+              <input type="text" class="form-control" id="namer-name">
+            </div>
+            <div class="mb-3">
+              <label for="usernamer-name" class="col-form-label">Username:</label>
+              <input type="text" class="form-control" id="usernamer-name">
+            </div>
+            <div class="mb-3">
+              <label for="emailr-name" class="col-form-label">Email:</label>
+              <input type="email" class="form-control" id="emailr-name">
+            </div>
+            <div class="mb-3">
+              <label for="imager" class="col-form-label">pro:</label>
+              <input type="file" class="form-control" id="imager-name">
+            </div>
+            <div class="mb-3">
+              <label for="passwordr-name" class="col-form-label">Password:</label>
+              <input type="password" class="form-control" id="passwordr-name">
+            </div>
+          </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button id="liveAlertBtn" type="button" class="btn btn-primary" onclick="register()">Register</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- E => MODALS to REGISTER -->
+  
+
+    <script src="api.js"></script>
+</body>
+</html>
+
