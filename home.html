@@ -18,7 +18,6 @@
   <link rel="stylesheet" href="all.min.css">
   <!-- fonts awsomes -->
 
-  <!-- <script src="api.js"></script> -->
 
   <title>SPACE</title>
   <style>
@@ -69,6 +68,91 @@
     .postSingle:hover {
       background-color: rgb(211, 255, 218) !important;
     }
+
+    /* S => loading style */
+    .lds-grid {
+      display: inline-block;
+      position: relative;
+      width: 80px;
+      height: 80px;
+    }
+
+    .lds-grid div {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #cecfff;
+      animation: lds-grid 1.2s linear infinite;
+    }
+
+    .lds-grid div:nth-child(1) {
+      top: 8px;
+      left: 8px;
+      animation-delay: 0s;
+    }
+
+    .lds-grid div:nth-child(2) {
+      top: 8px;
+      left: 32px;
+      animation-delay: -0.4s;
+    }
+
+    .lds-grid div:nth-child(3) {
+      top: 8px;
+      left: 56px;
+      animation-delay: -0.8s;
+    }
+
+    .lds-grid div:nth-child(4) {
+      top: 32px;
+      left: 8px;
+      animation-delay: -0.4s;
+    }
+
+    .lds-grid div:nth-child(5) {
+      top: 32px;
+      left: 32px;
+      animation-delay: -0.8s;
+    }
+
+    .lds-grid div:nth-child(6) {
+      top: 32px;
+      left: 56px;
+      animation-delay: -1.2s;
+    }
+
+    .lds-grid div:nth-child(7) {
+      top: 56px;
+      left: 8px;
+      animation-delay: -0.8s;
+    }
+
+    .lds-grid div:nth-child(8) {
+      top: 56px;
+      left: 32px;
+      animation-delay: -1.2s;
+    }
+
+    .lds-grid div:nth-child(9) {
+      top: 56px;
+      left: 56px;
+      animation-delay: -1.6s;
+    }
+
+    @keyframes lds-grid {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.5;
+      }
+    }
+
+    /* E => loading style */
   </style>
 </head>
 
@@ -76,6 +160,21 @@
   <!-- S=> CONTAINER = NAV -->
   <div class="container pt-2">
     <!-- ALERTS -->
+    <div id="loader"
+      style="position: fixed; top: 0px; bottom: 0px; left: 0px; right: 0px; margin: auto auto; display: flex; justify-content: center; align-items: center; z-index: 3; background-color: rgba(0, 0, 0, 0.342); width: 100px; height: 100px; border-radius: 10px;">
+      <!-- LOADER -->
+      <div class="lds-grid">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+    </div>
     <div id="liveAlertPlaceholder" class="show fade"></div>
     <div class="d-flex justify-content-center">
       <div class="col-9">
@@ -114,11 +213,10 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
               <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                  <a class="nav-link active" aria-current="page" href="#">Home</a>
+                  <a class="nav-link active" aria-current="page" href="home.html">Home</a>
                 </li>
                 <li class="nav-item">
-                  <!-- * Here -->
-                  <a class="nav-link" id="profile" href="#">Profile</a>
+                  <a class="nav-link" id="profile" style="cursor: pointer;" onclick="getProfileLink()">Profile</a>
                 </li>
               </ul>
             </div>
@@ -148,6 +246,7 @@
   <!-- S => MAIN CONTAINER -->
   <div id="post" class="container" style="height: 1000px;">
     <div class="d-flex justify-content-center postSingle">
+
       <div class="col-9">
         <!-- S => POSTS -->
 
@@ -242,6 +341,9 @@
             <div class="mb-3">
               <label for="postTitle" class="form-label">Title</label>
               <input type="text" class="form-control" id="postTitle" placeholder="Enter title" required>
+
+              <!-- hidden input -->
+              <input type="hidden" id="post-id-input" value="">
             </div>
 
             <!-- Body Field -->
@@ -254,24 +356,43 @@
             <!-- Image Upload -->
             <div class="mb-3">
               <label for="postImage" class="form-label">Image</label>
-              <input class="form-control" type="file" id="postImage" required>
+              <input class="form-control" type="file" id="postImage">
             </div>
           </form>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button class="btn btn-primary" onclick="createPost()">Save changes</button>
+          <button class="btn btn-primary" id="savechange" onclick="createPost()">Create</button>
         </div>
       </div>
     </div>
   </div>
 
   <!-- E => MODALS TO POSTS -->
-
+  <!-- S => MODALS TO DELETE -->
+  <div class="modal fade" id="deletePostModal" tabindex="-1" aria-labelledby="deletePostModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deletePostModalLabel">Confirm Delete</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to delete this post? <span id="titleOfDelete" style="font-weight: bold;">title</span>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-danger" onclick="deletePostBtnClicked()">Delete Post</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- E => MODALS TO DELETE -->
 
 </body>
 <script src="api.js"></script>
 <script src="posts.js"></script>
+<script src="profile.js"></script>
 </body>
 
 </html>

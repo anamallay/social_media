@@ -1,13 +1,6 @@
-
-// document.getElementById("profile-display").innerHTML = "";
-
 function handlePostClick(postId) {
   window.location.href = `postDetails.html?postId=${postId}`;
 }
-
-
-
-
 
 function setupUI() {
   let reglogbiv = document.getElementById("reg_log_div");
@@ -45,6 +38,7 @@ function show_alert(massage, theme) {
     alert.close();
   }, 5000);
 }
+
 function showUser() {
   let userInformation = localStorage.getItem("user");
   let userInformationafter = JSON.parse(userInformation);
@@ -82,7 +76,8 @@ function login() {
       setupUI();
     })
     .catch(function (error) {
-      console.log(error);
+      let message = error.response.data.message;
+      show_alert(message, "danger");
     });
 }
 
@@ -115,7 +110,6 @@ function register() {
     })
     .catch(function (error) {
       let message = error.response.data.message;
-      console.log(message);
       show_alert(message, "danger");
     });
 }
@@ -133,62 +127,97 @@ function logout() {
 }
 // create post
 function createPost() {
+  let postid = document.getElementById("post-id-input").value;
+  let isCreate = postid == null || postid == "";
+
   let title_post = document.getElementById("postTitle").value;
   let body_post = document.getElementById("postBody").value;
   let image_post = document.getElementById("postImage").files[0];
 
   const fullToken = localStorage.getItem("token");
-
   let tokenPart;
-
   if (fullToken) {
     tokenPart = fullToken.split("|")[1];
-
     if (tokenPart && tokenPart.length > 0) {
       tokenPart = tokenPart.slice(0, -1);
     }
-    console.log("Token:", tokenPart);
   } else {
     console.log("Token not found in local storage.");
     alert("No authentication token found. Please log in again.");
     return;
   }
+
   let formData = new FormData();
   formData.append("title", title_post);
   formData.append("body", body_post);
   formData.append("image", image_post);
 
-  axios
-    .post("https://tarmeezacademy.com/api/v1/posts", formData, {
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${tokenPart}`,
-      },
-    })
-    .then(function (response) {
-      console.log(response.data);
-      show_alert("Post created successfully!", "success");
+  if (isCreate) {
+    axios
+      .post("https://tarmeezacademy.com/api/v1/posts", formData, {
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${tokenPart}`,
+        },
+      })
+      .then(function (response) {
+        console.log(response.data);
+        show_alert("Post created successfully!", "success");
+        getpost();
 
-      // Reset form after posting
-      document.querySelector("form").reset();
+        document.querySelector("form").reset();
+        getpost();
 
-      // Close the modal if using Bootstrap 5
-      const modal = document.getElementById("postModal");
-      const modalInstance = bootstrap.Modal.getInstance(modal);
-      modalInstance.hide();
-      getpost();
-    })
-    .catch(function (error) {
-      show_alert(
-        `Failed to create the post: ${error.response.data.message}`,
-        "danger"
-      );
-    });
+        const modal = document.getElementById("postModal");
+        const modalInstance = bootstrap.Modal.getInstance(modal);
+        modalInstance.hide();
+        getpost();
+      })
+      .catch(function (error) {
+        show_alert(
+          `Failed to create the post: ${error.response.data.message}`,
+          "danger"
+        );
+      });
+  } else {
+    formData.append("_method", "put");
+    axios
+      .post(`https://tarmeezacademy.com/api/v1/posts/${postid}`, formData, {
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${tokenPart}`,
+        },
+      })
+      .then(function (response) {
+        console.log(response.data);
+        show_alert("Post edited successfully!", "success");
+        getpost(true, 1);
+
+        document.querySelector("form").reset();
+        
+        const modal = document.getElementById("postModal");
+        const modalInstance = bootstrap.Modal.getInstance(modal);
+        modalInstance.hide();
+      })
+      .catch(function (error) {
+        console.log("error", error);
+        show_alert(
+          `Failed to create the put: ${error.response.data.message}`,
+          "danger"
+        );
+      });
+  }
 }
 
 // ---S => Calling the function ---
 setupUI();
 showUser();
 // ---E => Calling the function ---
-
-
+// loading
+function toggleLoader(show = true) {
+  if (show) { 
+    document.getElementById("loader").style.visibility = "visibility"
+  } else {
+    document.getElementById("loader").style.visibility = "hidden";
+  }
+}

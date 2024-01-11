@@ -1,6 +1,6 @@
 let userParams = new URLSearchParams(window.location.search);
 let id = userParams.get("postId") || localStorage.getItem("postId");
-console.log(id);
+
 getSinglePost(id);
 // Show the alert function
 function show_alert(massage, theme) {
@@ -22,10 +22,13 @@ function show_alert(massage, theme) {
     alert.close();
   }, 5000);
 }
+
 function getSinglePost(IDPost) {
+  toggleLoader(true)
   axios
     .get(`https://tarmeezacademy.com/api/v1/posts/${IDPost}`)
     .then(function (response) {
+      toggleLoader(false)
       let post = response.data.data;
 
       let content = `
@@ -33,8 +36,10 @@ function getSinglePost(IDPost) {
           <div class="col-9">
             <div class="card shadow-lg p-3 mb-5 bg-body-tertiary rounded">
                 <div class="card-header">
+                <span onclick="handleProfileUser('${post.author.id}')" style="cursor: pointer">
                   <img class="rounded-circle border border-2" src="${post.author.profile_image}" alt="..." style="width: 40px; height: 40px;">
                   <b>${post.author.username}</b>
+                </span>
                 </div>
                 <div class="card-body">
                   <h5>${post.title}</h5>
@@ -114,10 +119,7 @@ function createComment(postId, commentText) {
   }
 
   const tokenPart = fullToken.split("|")[1]?.slice(0, -1);
-  // if (!tokenPart) {
-  //   show_alert("Invalid token format. Please log in again", "warning");
-  //   return;
-  // }
+
 
   axios
     .post(
@@ -133,10 +135,20 @@ function createComment(postId, commentText) {
     .then((response) => {
       console.log("Comment created:", response.data);
       show_alert("Comment created successfully!", "success");
-      getSinglePost(postId); // Refresh comments
+      getSinglePost(postId);
     })
     .catch((error) => {
       console.error("Error creating comment:", error.response.data.message);
       show_alert(error.response.data.message, "danger");
     });
+}
+function handleProfileUser(userId) {
+  window.location.href = `profile.html?userId=${userId}`;
+}
+function toggleLoader(show = true) {
+  if (show) {
+    document.getElementById("loader").style.visibility = "visibility";
+  } else {
+    document.getElementById("loader").style.visibility = "hidden";
+  }
 }

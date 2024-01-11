@@ -1,41 +1,49 @@
-// document.getElementById("profile-display").innerHTML = "";
+let currentPage = 1;
+let lastPage = 1;
 
-// Infinite Scrolling
-// Pagingation
-// let currentPage = 1;
-// let lastPage = 1;
-// window.addEventListener("scroll", () => {
-//   const endOfPage =
-//     window.innerHeight + window.scrollY >= document.body.offsetHeight;
-//   console.log("lastPage: " + lastPage, "currentPage: " + currentPage, "endOfPage: " + endOfPage);
-//   if (endOfPage && currentPage < lastPage) {
-//     currentPage += 1;
-//     getpost(false, currentPage);
-//   }
-//   console.log(endOfPage);
-// });
+window.addEventListener("scroll", function () {
+  const endOfPage =
+    window.innerHeight + window.scrollY >= document.body.scrollHeight;
+
+  if (endOfPage && currentPage < lastPage) {
+    currentPage = currentPage + 1;
+    getpost(false, currentPage);
+  }
+});
 
 const userDataJSON = localStorage.getItem("user");
 const userObject = JSON.parse(userDataJSON);
-console.log(userObject.id); //id os 
+
 function getpost(reload = true, page = 1) {
+  toggleLoader(true);
   axios
-    .get(`https://tarmeezacademy.com/api/v1/posts?limit=30`)
+    .get(`https://tarmeezacademy.com/api/v1/posts?limit=2&page=${page}`)
     .then(function (response) {
+      toggleLoader(false);
       lastPage = response.data.meta.last_page;
 
-      // if (reload) {
-      // document.getElementById("post").innerHTML = "";
-      // }
+      if (reload) {
+        document.getElementById("post").innerHTML = "";
+      }
 
       let posts = response.data.data;
       for (post of posts) {
-        console.log("post.tags", post.tags);
         let tagsContent = "";
         if (post.tags && post.tags.length > 0) {
           for (tag of post.tags) {
             tagsContent += `<span><button class="btn btn-sm rounded-5" style="background-color: #415a77; color: white;">${tag.name}</button></span>`;
           }
+        }
+        let editButton = "";
+        let deleteButton = "";
+        if (userObject && userObject.id === post.author.id) {
+          editButton = `
+          <button class="btn btn-outline-secondary" style="float: right" onclick="editPostBtnClicked('${encodeURIComponent(
+            JSON.stringify(post)
+          )}')">Edit</button>`;
+
+          deleteButton = `
+          <button class="btn btn-outline-danger" style="float: right; margin-left: 5px;" onclick="showDeleteConfirmation('${post.id}')">Delete</button>`;
         }
 
         let content = `
@@ -43,19 +51,19 @@ function getpost(reload = true, page = 1) {
             <div class="col-9">
               <div class="card shadow-lg p-3 mb-5 bg-body-tertiary rounded postSingle" >
                   <div class="card-header">
-                    <img class="rounded-circle border border-2" src="${
-                      post.author.profile_image
-                    }" alt="..." style="width: 40px; height: 40px;">
+                  <span onclick="handleProfileUser('${post.author.id}')" style="cursor: pointer">
+                    <img class="rounded-circle border border-2" src="${post.author.profile_image}" alt="..." style="width: 40px; height: 40px;">
                     <b>${post.author.username}</b>
-                    <button class="btn btn-outline-secondary" style="float: right" onclick="editPostBtnClicked('${encodeURIComponent(JSON.stringify(post))}')">edit</button>
+                  </span>
+                    ${deleteButton}
+                    ${editButton}
+                    
                   </div>
                   <div class="card-body" onclick="handlePostClick(${post.id})">
                     <h5>${post.title}</h5>
                     <p>${post.body}</p>
                     <img class="w-100" src="${post.image}" alt="...">
-                    <h6 class="mt-1" style="color: rgb(122, 122, 122);">${
-                      post.created_at
-                    }</h6>
+                    <h6 class="mt-1" style="color: rgb(122, 122, 122);">${post.created_at}</h6>
                     <hr>
                     <div>
                      <div>
@@ -84,21 +92,78 @@ function getpost(reload = true, page = 1) {
     });
 }
 getpost();
-function editPostBtnClicked(post) {
-  console.log(JSON.parse(decodeURIComponent(post)));
-  // return
-    axios.put(`https://tarmeezacademy.com/api/v1/posts/${post.id}`);
+function editPostBtnClicked(posts) {
+  document.getElementById("post-model-title").innerHTML = "Update Post";
+  document.getElementById("savechange").innerHTML = "Update";
 
-  // postModal
-  // post-model-title
-  document.getElementById("post-model-title").innerHTML = "Edit Post"
+  let post = JSON.parse(decodeURIComponent(posts));
+  document.getElementById("post-id-input").value = post.id;
+
+  document.getElementById("postTitle").value = post.title || "";
+  document.getElementById("postBody").value = post.body || "";
+
   let idpostModal = document.getElementById("postModal");
   let editModel = new bootstrap.Modal(idpostModal, {});
   editModel.toggle();
+
+  idpostModal.addEventListener("hidden.bs.modal", function (event) {
+    document.getElementById("post-model-title").innerHTML = "Create Post";
+    document.getElementById("savechange").innerHTML = "Create";
+    document.getElementById("postTitle").value = "";
+    document.getElementById("postBody").value = "";
+  });
 }
+function showDeleteConfirmation(postid) {
+  document.getElementById("titleOfDelete").innerHTML = postid;
+  let idpostModal = document.getElementById("deletePostModal");
+  let deleteModel = new bootstrap.Modal(idpostModal, {});
+  deleteModel.toggle();
+  window.currentlyDeletingPostId = postid;
+}
+function deletePostBtnClicked() {
+  let postid = window.currentlyDeletingPostId;
 
-
-
-
-
-
+  const fullToken = localStorage.getItem("token");
+  let tokenPart;
+  if (fullToken) {
+    tokenPart = fullToken.split("|")[1];
+    if (tokenPart && tokenPart.length > 0) {
+      tokenPart = tokenPart.slice(0, -1);
+    }
+  } else {
+    console.log("Token not found in local storage.");
+    alert("No authentication token found. Please log in again.");
+    return;
+  }
+  axios
+    .delete(`https://tarmeezacademy.com/api/v1/posts/${postid}`, {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${tokenPart}`,
+      },
+    })
+    .then(function (response) {
+      show_alert("Post deleted successfully!", "success");
+      let deleteModal = bootstrap.Modal.getInstance(
+        document.getElementById("deletePostModal")
+      );
+      deleteModal.hide();
+      setTimeout(() => getpost(true, 1), 500);
+    })
+    .catch(function (error) {
+      show_alert(
+        `Failed to deleted the post: ${error.response.data.message}`,
+        "danger"
+      );
+    });
+}
+function handleProfileUser(userId) {
+  window.location.href = `profile.html?userId=${userId}`;
+}
+function toggleLoader(show = true) {
+  if (show) {
+    document.getElementById("loader").style.visibility = "visibility";
+  } else {
+    document.getElementById("loader").style.visibility = "hidden";
+  }
+}
