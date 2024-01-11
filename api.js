@@ -161,7 +161,6 @@ function createPost() {
         },
       })
       .then(function (response) {
-        console.log(response.data);
         show_alert("Post created successfully!", "success");
         getpost();
 
@@ -194,7 +193,7 @@ function createPost() {
         getpost(true, 1);
 
         document.querySelector("form").reset();
-        
+
         const modal = document.getElementById("postModal");
         const modalInstance = bootstrap.Modal.getInstance(modal);
         modalInstance.hide();

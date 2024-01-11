@@ -17,10 +17,12 @@ const userObject = JSON.parse(userDataJSON);
 function getpost(reload = true, page = 1) {
   toggleLoader(true);
   axios
-    .get(`https://tarmeezacademy.com/api/v1/posts?limit=2&page=${page}`)
+    .get(`https://tarmeezacademy.com/api/v1/posts?limit=10&page=${page}`)
     .then(function (response) {
       toggleLoader(false);
       lastPage = response.data.meta.last_page;
+      //if is null is object and if there is image is string then now show the image if is string and not show if is object
+      console.log("posts", typeof response.data.data[0].image);
 
       if (reload) {
         document.getElementById("post").innerHTML = "";
@@ -28,6 +30,10 @@ function getpost(reload = true, page = 1) {
 
       let posts = response.data.data;
       for (post of posts) {
+        let imageHTML = "";
+        if (typeof post.image === "string") {
+          imageHTML = `<img class="w-100" src="${post.image}" alt="Post Image">`;
+        }
         let tagsContent = "";
         if (post.tags && post.tags.length > 0) {
           for (tag of post.tags) {
@@ -62,7 +68,7 @@ function getpost(reload = true, page = 1) {
                   <div class="card-body" onclick="handlePostClick(${post.id})">
                     <h5>${post.title}</h5>
                     <p>${post.body}</p>
-                    <img class="w-100" src="${post.image}" alt="...">
+                    ${imageHTML}
                     <h6 class="mt-1" style="color: rgb(122, 122, 122);">${post.created_at}</h6>
                     <hr>
                     <div>
@@ -143,12 +149,12 @@ function deletePostBtnClicked() {
       },
     })
     .then(function (response) {
+      getpost(true, 1);
       show_alert("Post deleted successfully!", "success");
       let deleteModal = bootstrap.Modal.getInstance(
         document.getElementById("deletePostModal")
       );
       deleteModal.hide();
-      setTimeout(() => getpost(true, 1), 500);
     })
     .catch(function (error) {
       show_alert(

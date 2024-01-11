@@ -149,7 +149,7 @@ function deletePostBtnClicked() {
       },
     })
     .then(function (response) {
-      myprofilePosts(myprofile);
+      // myprofilePosts(myprofile);
       show_alert("Post deleted successfully!", "success");
       let deleteModal = bootstrap.Modal.getInstance(
         document.getElementById("deletePostModal")
